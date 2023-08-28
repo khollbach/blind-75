@@ -16,6 +16,7 @@ impl Solution {
     }
 }
 
+/// O(n)
 fn two_sum(nums: &[i32], target: i32) -> Option<(usize, usize)> {
     let mut seen = HashMap::with_capacity(nums.len());
 

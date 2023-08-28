@@ -10,6 +10,7 @@ pub struct Solution;
 use std::collections::HashSet;
 
 impl Solution {
+    /// O(n)
     pub fn contains_duplicate(nums: Vec<i32>) -> bool {
         let mut seen = HashSet::with_capacity(nums.len());
         for x in nums {
