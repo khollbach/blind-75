@@ -1,1 +1,1 @@
-../../242.valid-anagram.rs
+../../1.two-sum.rs
