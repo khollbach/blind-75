@@ -8,22 +8,23 @@ pub struct Solution;
 
 // @lc code=start 
 impl Solution {
-    pub fn maximum_meetings(intervals: Vec<Vec<i32>>) -> i32 {
-        let mut end_point = BinaryHeap::new();
-        intervals.sort_by(|a, b| a[1].cmp(&b[1]));
+    pub fn min_meeting_rooms(intervals: Vec<Interval>) -> i32 {
+        let mut points = Vec::new();
         for interval in intervals {
-            if let Some(priority) = end_point.pop() {
-                if abs(priority) <= interval[1] {
-                    end_point.push(priority - interval[1]);
-                } else {
-                    end_point.push(priority);
-                    end_point.push(-interval[1]);
-                }
-            } else {
-                end_point.push(-interval[1]);
-            }
+            points.push((interval.start, 1));
+            points.push((interval.end, -1));
         }
-        end_point.len() as i32
+
+        points.sort_by(|a, b| a.0.cmp(&b.0));
+
+        let mut meeting_rooms = 0;
+        let mut ongoing_meetings = 0;
+        for point in points {
+            ongoing_meetings += point.1;
+            meeting_rooms = max(meeting_rooms, ongoing_meetings);
+        }
+
+        meeting_rooms
     }
 }
  // @lc code=end
