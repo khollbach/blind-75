@@ -22,17 +22,17 @@
  */
 pub struct Solution;
 
+// @lc code=start 
 use std::collections::VecDeque;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
 #[derive(Clone)]
 pub struct Node {
-    pub in_nodes: Vec<usize>,
-    pub out_nodes: Vec<usize>,
+    pub in_nodes: HashSet<usize>,
+    pub out_nodes: HashSet<usize>,
 }
 
-// @lc code=start 
 impl Solution {
     pub fn alien_order(words: Vec<String>) -> String {
         let mut graph: HashMap<usize, Node> = HashMap::new();
@@ -43,8 +43,8 @@ impl Solution {
                 let index = (c as u8 - b'a').into();
                 graph.insert(index, 
                     Node {
-                        in_nodes: vec![],
-                        out_nodes: vec![],
+                        in_nodes: HashSet::new(),
+                        out_nodes: HashSet::new(),
                     });
             }
         }
@@ -53,28 +53,31 @@ impl Solution {
         for pair in words.windows(2) {
             let (before, after) = extract_order(&pair[0], &pair[1]);
             if let (Some(before), Some(after)) = (before, after) {
-                graph.get_mut(&before).unwrap().out_nodes.push(after);   
-                graph.get_mut(&after).unwrap().in_nodes.push(before);
+                graph.get_mut(&before).unwrap().out_nodes.insert(after);   
+                graph.get_mut(&after).unwrap().in_nodes.insert(before);
             }
         }
 
         let mut toposort = vec![];
         let mut visited = HashSet::new();
-        let mut queue = VecDeque::new();
+        let mut queue = vec![];
 
         // find the sources for the topological sort
         for (index, node) in &graph {
             if node.in_nodes.len() == 0 {
-                queue.push_back(index);
+                queue.push(index);
             }
         }
+        queue.sort_by(|a, b| a.cmp(&b));
+        let mut queue: VecDeque<_> = queue.into_iter().collect();
 
-        while let Some(index) = queue.pop_front() {
-            toposort.push(index);
-            visited.insert(index);
-            //println!("{}, {:?}", index, graph[index].out_nodes);
-            for nbour_index in graph[index].out_nodes.iter() {
-                if visited.contains(&nbour_index) {
+        while let Some(i) = queue.pop_front() {
+            toposort.push(i);
+            visited.insert(i);
+            //(*graph.get_mut(i).unwrap()).out_nodes.sort_by(|a, b| a.cmp(&b));
+            println!("{}, {:?}", i, graph[i].out_nodes);
+            for nbour_index in &graph[i].out_nodes {
+                if visited.contains(nbour_index) {
                     return String::new();
                 }
                 queue.push_back(nbour_index);

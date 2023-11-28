@@ -15,7 +15,13 @@ impl Solution {
             points.push((interval.end, -1));
         }
 
-        points.sort_by(|a, b| a.0.cmp(&b.0));
+        points.sort_by(|a, b| {
+            if a.0 != b.0 {
+                a.0.cmp(&b.0)
+            } else {
+                a.1.cmp(&b.1)
+            }
+        });
 
         let mut meeting_rooms = 0;
         let mut ongoing_meetings = 0;

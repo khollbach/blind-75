@@ -23,7 +23,7 @@ impl Solution {
         loop {
             match (list1.peek(), list2.peek()) {
                 (Some(x), Some(y)) if x <= y => out.push(list1.pop().unwrap()),
-                (Some(_), Some(_)) => out.push(list1.pop().unwrap()),
+                (Some(_), Some(_)) => out.push(list2.pop().unwrap()),
                 (Some(_), None) => out.push(list1.pop().unwrap()),
                 (None, Some(_)) => out.push(list2.pop().unwrap()),
                 (None, None) => break,
