@@ -72,15 +72,17 @@ impl Solution {
         let mut queue: VecDeque<_> = queue.into_iter().collect();
 
         while let Some(i) = queue.pop_front() {
-            toposort.push(i);
-            visited.insert(i);
-            //(*graph.get_mut(i).unwrap()).out_nodes.sort_by(|a, b| a.cmp(&b));
-            println!("{}, {:?}", i, graph[i].out_nodes);
-            for nbour_index in &graph[i].out_nodes {
-                if visited.contains(nbour_index) {
-                    return String::new();
+            if !visited.contains(&i) {
+                toposort.push(i);
+                visited.insert(i);
+                let vertices: Vec<_> = graph[i].out_nodes.iter().collect();
+                //println!("{}, {:?}", i, graph[i].out_nodes);
+                for nbour_index in &graph[i].out_nodes {
+                    if visited.contains(nbour_index) {
+                        return String::new();
+                    }
+                    queue.push_back(nbour_index);
                 }
-                queue.push_back(nbour_index);
             }
         }
         
