@@ -55,45 +55,55 @@ impl Solution {
             if let (Some(before), Some(after)) = (before, after) {
                 graph.get_mut(&before).unwrap().out_nodes.insert(after);   
                 graph.get_mut(&after).unwrap().in_nodes.insert(before);
+            } else if let (Some(before), None) = (before, after) {
+                return String::new();
             }
         }
 
         let mut toposort = vec![];
-        let mut visited = HashSet::new();
-        let mut queue = vec![];
-
         // find the sources for the topological sort
-        for (index, node) in &graph {
-            if node.in_nodes.len() == 0 {
-                queue.push(index);
-            }
-        }
-        queue.sort_by(|a, b| a.cmp(&b));
-        let mut queue: VecDeque<_> = queue.into_iter().collect();
+        let mut queue: VecDeque<_> = graph.iter()
+            .filter_map(|(i, node)| { 
+                if node.in_nodes.len() == 0 {
+                    Some(*i)
+                } else {
+                    None
+                }
+            }).collect();
 
         while let Some(i) = queue.pop_front() {
-            if !visited.contains(&i) {
+            if graph[&i].in_nodes.len() == 0 {
                 toposort.push(i);
-                visited.insert(i);
-                let vertices: Vec<_> = graph[i].out_nodes.iter().collect();
-                //println!("{}, {:?}", i, graph[i].out_nodes);
-                for nbour_index in &graph[i].out_nodes {
-                    if visited.contains(nbour_index) {
-                        return String::new();
-                    }
+            }
+            let vertices = graph[&i].out_nodes.clone();
+            for nbour_index in vertices {
+                let nbour = graph.get_mut(&nbour_index).unwrap();
+                nbour.in_nodes.remove(&i);
+                if nbour.in_nodes.len() == 0 {
                     queue.push_back(nbour_index);
                 }
             }
         }
-        
-        toposort.iter().map(|&&u| (u as u8 + b'a') as char).collect()
+        if toposort.len() == graph.len() {
+            toposort.iter().map(|&u| (u as u8 + b'a') as char).collect()
+        } else {
+            String::new()
+        }
     }
 }
 
 pub fn extract_order(word1: &String, word2: &String) -> (Option<usize>, Option<usize>) {
-    for (b1, b2) in word1.chars().zip(word2.chars()) {
-        if b1 != b2 {
-            return (Some((b1 as u8 - b'a').into()), Some((b2 as u8 - b'a').into()));
+    let chars2: Vec<char> = word2.chars().collect();
+    for (i, b1) in word1.chars().enumerate() {
+        let b2 = if chars2.len() > i {
+            Some(chars2[i])
+        } else {
+            None
+        };
+        if b2.is_none() {
+            return (Some((b1 as u8 - b'a').into()), None);
+        } else if b1 != b2.unwrap() {
+            return (Some((b1 as u8 - b'a').into()), Some((b2.unwrap() as u8 - b'a').into()));
         }
     }
     (None, None)
